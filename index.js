@@ -8,13 +8,33 @@ const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+ 
 
 
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.d0mpqsd.mongodb.net/?retryWrites=true&w=majority`;
-console.log(uri);
+
+const uri = "mongodb+srv://OldCarSell:mPrhvgpxIJLekADW@cluster0.d0mpqsd.mongodb.net/?retryWrites=true&w=majority";
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
+
+async function run() {
+    try {
+     const carCollection = client.db("UsedCar").collection("addedCars")
+
+     app.post('/addedproducts', async(req, res) => {
+        const products = req.body
+        const result = await carCollection.insertOne(products);
+        console.log(result);
+        res.send(result)
+     })
+    } 
+    finally {
+      
+    }
+  }
+
+
+run().catch(err => console.log(err))
 
 
 app.get('/', (req, res) => {
