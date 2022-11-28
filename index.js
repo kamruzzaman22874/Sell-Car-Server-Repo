@@ -20,12 +20,28 @@ async function run() {
 
 	 app.get('/pajeroogroup' , async(req , res)=>{
         const query = { name : "Pajeroo"};
-        const result = await carCollection.find(query).limit(1).toArray();
+        const result = await carCollection.find(query).limit(3).toArray();
         res.send(result);
      })
 	 app.get('/corollagroup' , async(req , res)=>{
         const query = { name : "Corolla"};
         const result = await carCollection.find(query).limit(3).toArray();
+        res.send(result);
+     })
+
+     app.get('/teslagroup', async (req, res) => {
+		const query = { name: 'Tesla' };
+		const result = await carCollection.find(query).limit(3).toArray();
+		res.send(result);
+	});
+	 app.get('/pajeroogroup' , async(req , res)=>{
+        const query = { name : "Pajeroo"};
+        const result = await carCollection.find(query).toArray();
+        res.send(result);
+     })
+	 app.get('/corollagroup' , async(req , res)=>{
+        const query = { name : "Corolla"};
+        const result = await carCollection.find(query).toArray();
         res.send(result);
      })
 
