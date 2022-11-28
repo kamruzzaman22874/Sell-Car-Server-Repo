@@ -8,10 +8,6 @@ const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
- 
-
-
-
 
 const uri = "mongodb+srv://OldCarSell:mPrhvgpxIJLekADW@cluster0.d0mpqsd.mongodb.net/?retryWrites=true&w=majority";
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
@@ -21,37 +17,23 @@ async function run() {
     try {
      const carCollection = client.db("UsedCar").collection("addedCars")
 
-        app.get('/allseller' , async(req , res)=>{
-            const email = req.query.email;
-            const query = {email : email}
-        })
 
+	 app.get('/pajeroogroup' , async(req , res)=>{
+        const query = { name : "Pajeroo"};
+        const result = await carCollection.find(query).limit(1).toArray();
+        res.send(result);
+     })
+	 app.get('/corollagroup' , async(req , res)=>{
+        const query = { name : "Corolla"};
+        const result = await carCollection.find(query).limit(3).toArray();
+        res.send(result);
+     })
 
-
-        	//!=====START======Company wise data load.......======>
-
-	app.get('/corolla', async (req, res) => {
-		const query = { name: 'Corolla' };
-		result = await carCollection.find(query).toArray();
+     app.get('/teslagroup', async (req, res) => {
+		const query = { name: 'Tesla' };
+		const result = await carCollection.find(query).toArray();
 		res.send(result);
-		// res.send({name:'wroking'})
 	});
-	app.get('/tesla', async (req, res) => {
-		result = await carCollection
-			.find({ name: 'Tesla' })
-			.toArray();
-		res.send(result);
-		// res.send({name:'wroking'})
-	});
-	app.get('/pajeroo', async (req, res) => {
-		const query = { name: 'Pajeroo' };
-		result = await carCollection.find(query).toArray();
-		res.send(result);
-		// res.send({name:'wroking'})
-	});
-	//!=====END======!
-
-
 
 
 
