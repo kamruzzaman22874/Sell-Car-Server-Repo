@@ -16,24 +16,10 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
      const carCollection = client.db("UsedCar").collection("addedCars")
+     const bookingCollection = client.db("UsedCar").collection("booking")
+     const usersCollection = client.db("UsedCar").collection("users")
 
 
-	 app.get('/pajeroogroup' , async(req , res)=>{
-        const query = { name : "Pajeroo"};
-        const result = await carCollection.find(query).limit(3).toArray();
-        res.send(result);
-     })
-	 app.get('/corollagroup' , async(req , res)=>{
-        const query = { name : "Corolla"};
-        const result = await carCollection.find(query).limit(3).toArray();
-        res.send(result);
-     })
-
-     app.get('/teslagroup', async (req, res) => {
-		const query = { name: 'Tesla' };
-		const result = await carCollection.find(query).limit(3).toArray();
-		res.send(result);
-	});
 	 app.get('/pajeroogroup' , async(req , res)=>{
         const query = { name : "Pajeroo"};
         const result = await carCollection.find(query).toArray();
@@ -50,6 +36,48 @@ async function run() {
 		const result = await carCollection.find(query).toArray();
 		res.send(result);
 	});
+
+
+
+
+	 app.get('/pajeroocategory' , async(req , res)=>{
+        const query = { name : "Pajeroo"};
+        const result = await carCollection.find(query).limit(1).toArray();
+        res.send(result);
+     })
+	 app.get('/corollacategory' , async(req , res)=>{
+        const query = { name : "Corolla"};
+        const result = await carCollection.find(query).limit(1).toArray();
+        res.send(result);
+     })
+
+     app.get('/teslacategory', async (req, res) => {
+		const query = { name: 'Tesla' };
+		const result = await carCollection.find(query).limit(1).toArray();
+		res.send(result);
+	});
+
+    app.get('users' , async(req , res)=>{
+        const email = req.query.email;
+        const query = {email : email};
+        const users = await usersCollection.find(query).toArray();
+        res.send(users)
+    })
+
+    app.post('users' ,async (req,res)=>{
+        const user = req.body;
+        const result = await usersCollection.insertOne(user);
+        console.log(result);
+        res.send(result)
+    })
+
+    app.post('/booking' , async (req,res)=>{
+        const booked = req.body
+        const result = await bookingCollection.insertOne(booked);
+        console.log(result)
+        res.send(result)
+
+    })
 
 
 
