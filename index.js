@@ -18,6 +18,7 @@ async function run() {
      const carCollection = client.db("UsedCar").collection("addedCars")
      const bookingCollection = client.db("UsedCar").collection("booking")
      const usersCollection = client.db("UsedCar").collection("users")
+     const bookingOrderCollection = client.db("UsedCar").collection("bookingOrder")
 
 
 	 app.get('/pajeroogroup' , async(req , res)=>{
@@ -57,24 +58,35 @@ async function run() {
 		res.send(result);
 	});
 
-    app.get('users' , async(req , res)=>{
+    app.get('/users' , async(req , res)=>{
         const email = req.query.email;
         const query = {email : email};
         const users = await usersCollection.find(query).toArray();
         res.send(users)
     })
 
-    app.post('users' ,async (req,res)=>{
+    app.post('/users' ,async (req,res)=>{
         const user = req.body;
         const result = await usersCollection.insertOne(user);
-        console.log(result);
+        // console.log(result);
         res.send(result)
     })
 
-    app.post('/booking' , async (req,res)=>{
+
+    app.get('/bookings', async(req , res)=>{
+        const email = req.query.email;
+        // console.log(email);
+        const query = {email : email};
+        // console.log(query);
+        const booking = await bookingCollection.find(query).toArray();
+        // console.log(booking);
+        res.send(booking);
+    })
+
+    app.post('/booking', async (req,res)=>{
         const booked = req.body
-        const result = await bookingCollection.insertOne(booked);
-        console.log(result)
+        const result = await bookingOrderCollection.insertOne(booked);
+        // console.log(result)
         res.send(result)
 
     })
@@ -85,7 +97,7 @@ async function run() {
      app.post('/addedproducts', async(req, res) => {
         const products = req.body
         const result = await carCollection.insertOne(products);
-        console.log(result);
+        // console.log(result);
         res.send(result)
      })
     } 
