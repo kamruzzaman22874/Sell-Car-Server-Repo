@@ -66,6 +66,16 @@ async function run() {
         res.send(users)
     })
 
+    	//!======START <- get products for My-Products route ======>
+	app.get('/products', async (req, res) => {
+		const email = req.query.email;
+		const query = { email: email };
+		const products = await carCollection.find(query).toArray();
+        console.log(products);
+		res.send(products);
+	});
+	//todo--------------------------------
+
     app.post('/sellers', async(req , res)=>{
         const seller = req.body;
         const result = await sellerCollection.insertOne(seller)
