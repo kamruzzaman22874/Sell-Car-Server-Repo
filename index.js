@@ -1,6 +1,6 @@
 const express = require('express')
 const cors = require('cors')
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 
 const app = express() ;
@@ -16,9 +16,10 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
      const carCollection = client.db("UsedCar").collection("addedCars")
-     const bookingCollection = client.db("UsedCar").collection("booking")
      const usersCollection = client.db("UsedCar").collection("users")
      const bookingOrderCollection = client.db("UsedCar").collection("bookingOrder")
+     const sellerCollection = client.db("UsedCar").collection("seller")
+     const byerCollection = client.db("UsedCar").collection("byer")
 
 
 	 app.get('/pajeroogroup' , async(req , res)=>{
@@ -65,6 +66,12 @@ async function run() {
         res.send(users)
     })
 
+    app.post('/sellers', async(req , res)=>{
+        const seller = req.body;
+        const result = await sellerCollection.insertOne(seller)
+        res.send(result)
+    } )
+
     app.post('/users' ,async (req,res)=>{
         const user = req.body;
         const result = await usersCollection.insertOne(user);
@@ -73,14 +80,22 @@ async function run() {
     })
 
 
-    app.get('/bookings', async(req , res)=>{
+    // app.get('/bookings', async(req , res)=>{
+    //     const email = req.query.email;
+    //     console.log(email);
+    //     const query = {email : email};
+    //     console.log(query);
+    //     // console.log(query);
+    //     const booking = await bookingCollection.find(query).toArray();
+    //     console.log(booking);
+    //     res.send(booking);
+    // })
+
+    app.get('/bookings', async(req,res)=>{
         const email = req.query.email;
-        // console.log(email);
-        const query = {email : email};
-        // console.log(query);
-        const booking = await bookingCollection.find(query).toArray();
-        // console.log(booking);
-        res.send(booking);
+        const query = {email:email};
+        const booking = await bookingOrderCollection.find(query).toArray()
+        res.send(booking)
     })
 
     app.post('/booking', async (req,res)=>{
@@ -91,15 +106,23 @@ async function run() {
 
     })
 
-
-
-
-     app.post('/addedproducts', async(req, res) => {
-        const products = req.body
-        const result = await carCollection.insertOne(products);
+    app.delete('/bookings/:id' , async (req ,res)=>{
+        const id = req.params.id;
+        const query = {_id:ObjectId(id)};
+        const result = await bookingOrderCollection.deleteOne(query)
         // console.log(result);
         res.send(result)
+    })
+
+     app.post('/allsellers', async(req, res) => {
+        const products = req.body
+        const result = await carCollection.insertOne(products);
+        console.log(result);
+        res.send(result)
      })
+
+
+     
     } 
     finally {
       
