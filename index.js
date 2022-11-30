@@ -20,7 +20,78 @@ async function run() {
      const bookingOrderCollection = client.db("UsedCar").collection("bookingOrder")
      const sellerCollection = client.db("UsedCar").collection("seller")
      const byerCollection = client.db("UsedCar").collection("byer")
+     const advertiseCollection = client.db("UsedCar").collection("advertise")
 
+   //TODO:============================!Advertisement!======================>
+
+	//!======START <- post Advertisement Data in Mongodb  ======>
+	app.post('/advertisement', async (req, res) => {
+        console.log('giting');
+		const addData = req.body;
+		const result = await advertiseCollection.insertOne(addData);
+		res.send(result);
+	});
+	//!======END======>
+
+	//!======START <- get product By Id for Advertisement  ======>
+	app.get('/productById/:id', async (req, res) => {
+        // console.log('got hit');
+		const id = req.params.id;
+        // console.log('pera', id);
+		const query = { _id: ObjectId(id) };
+        // console.log('query', query);
+		const result = await carCollection.findOne(query);
+        console.log('result', result);
+		res.send(result);
+	});
+
+	//!======END======>
+
+
+    // //!======START <- Collect User Info from Sign up and set it database -> ======>
+	app.post('/users', async (req, res) => {
+		const usersList = await usersCollection.count({});
+
+		if (usersList !== 0) {
+			// Jodi user er role Seller hoy... Then user body er shathe permission add hoye database a jabe...... Noy2 normally body te thaka value e database a jabe
+			if (req.body.role === 'Seller') {
+				const user = req.body;
+				user.permission = 'Unverified';
+				const result = await usersCollection.insertOne(user);
+				res.send(result);
+			} else {
+				res.send((result = await usersCollection.insertOne(req.body)));
+			}
+		} else {
+			const user = req.body;
+			user.role = 'admin';
+			const result = await usersCollection.insertOne(user);
+			res.send(result);
+		}
+	});
+	// //todo=====END======>
+
+
+    	//! get user  from mongodb for Home page ==> for identify is he a admin or buyer or seller?
+
+	app.get('/users/:email', async (req, res) => {
+		const email = req.params.email;
+		// console.log(email);
+		const query = { email: email };
+		const result = await usersCollection
+			.find(query).project({ role: 1, _id: 0 }).toArray();
+		res.send(result);
+	});
+	// //todo=====END======>
+
+
+	//!======START <- get product By categories all data for Home page Advertisement  ======>
+	app.get('/advertisement/categories', async (req, res) => {
+		const query = {};
+		const result = await advertiseCollection.find(query).toArray();
+		res.send(result);
+	});
+	//!======END======>
 
 	 app.get('/pajeroogroup' , async(req , res)=>{
         const query = { name : "Pajeroo"};
