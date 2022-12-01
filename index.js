@@ -9,7 +9,7 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-const uri = "mongodb+srv://OldCarSell:mPrhvgpxIJLekADW@cluster0.d0mpqsd.mongodb.net/?retryWrites=true&w=majority";
+const uri = "mongodb://oldCar:N0B16mfkFU6U0mKC@ac-3oaxwyo-shard-00-00.d0mpqsd.mongodb.net:27017,ac-3oaxwyo-shard-00-01.d0mpqsd.mongodb.net:27017,ac-3oaxwyo-shard-00-02.d0mpqsd.mongodb.net:27017/?ssl=true&replicaSet=atlas-dy7o4a-shard-0&authSource=admin&retryWrites=true&w=majority";
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
@@ -18,8 +18,7 @@ async function run() {
      const carCollection = client.db("UsedCar").collection("addedCars")
      const usersCollection = client.db("UsedCar").collection("users")
      const bookingOrderCollection = client.db("UsedCar").collection("bookingOrder")
-     const sellerCollection = client.db("UsedCar").collection("seller")
-     const byerCollection = client.db("UsedCar").collection("byer")
+     const sellerProductsCollection = client.db("UsedCar").collection("SellerProducts");
      const advertiseCollection = client.db("UsedCar").collection("advertise")
 
    //TODO:============================!Advertisement!======================>
@@ -41,7 +40,7 @@ async function run() {
 		const query = { _id: ObjectId(id) };
         // console.log('query', query);
 		const result = await carCollection.findOne(query);
-        console.log('result', result);
+        // console.log('result', result);
 		res.send(result);
 	});
 
@@ -76,10 +75,10 @@ async function run() {
 
 	app.get('/users/:email', async (req, res) => {
 		const email = req.params.email;
-		// console.log(email);
+		console.log(email);
 		const query = { email: email };
-		const result = await usersCollection
-			.find(query).project({ role: 1, _id: 0 }).toArray();
+		const result = await usersCollection.find(query).toArray();
+            // console.log(result);
 		res.send(result);
 	});
 	// //todo=====END======>
@@ -110,6 +109,17 @@ async function run() {
 		res.send(result);
 	});
 
+	//!======START <- get products for My-Orders route ======>
+	app.get('/myorders', async (req, res) => {
+		const email = req.query.email;
+		console.log(email);
+		const query = { email: email };
+        console.log(query);
+		const orders = await bookingOrderCollection.find(query).toArray();
+		console.log(orders)
+		res.send(orders);
+	});
+	//todo--------------------------------
 
 
 
@@ -142,16 +152,11 @@ async function run() {
 		const email = req.query.email;
 		const query = { email: email };
 		const products = await carCollection.find(query).toArray();
-        console.log(products);
+        // console.log(products);
 		res.send(products);
 	});
 	//todo--------------------------------
 
-    app.post('/sellers', async(req , res)=>{
-        const seller = req.body;
-        const result = await sellerCollection.insertOne(seller)
-        res.send(result)
-    } )
 
     app.post('/users' ,async (req,res)=>{
         const user = req.body;
@@ -159,18 +164,6 @@ async function run() {
         // console.log(result);
         res.send(result)
     })
-
-
-    // app.get('/bookings', async(req , res)=>{
-    //     const email = req.query.email;
-    //     console.log(email);
-    //     const query = {email : email};
-    //     console.log(query);
-    //     // console.log(query);
-    //     const booking = await bookingCollection.find(query).toArray();
-    //     console.log(booking);
-    //     res.send(booking);
-    // })
 
     app.get('/bookings', async(req,res)=>{
         const email = req.query.email;
@@ -180,13 +173,15 @@ async function run() {
     })
 
     app.post('/booking', async (req,res)=>{
+        console.log('got hit');
         const booked = req.body
+        console.log(booked)
         const result = await bookingOrderCollection.insertOne(booked);
         // console.log(result)
         res.send(result)
 
     })
-
+    
     app.delete('/bookings/:id' , async (req ,res)=>{
         const id = req.params.id;
         const query = {_id:ObjectId(id)};
@@ -194,13 +189,54 @@ async function run() {
         // console.log(result);
         res.send(result)
     })
+	//!======START <- get All Sellers  ======>
+	app.get('/usersrole', async (req, res) => {
+        const query = { role: 'Seller' }
+		result = await usersCollection.find(query).toArray();
+		res.send(result);
+	});
+	//todo--------------------------------
 
-     app.post('/allsellers', async(req, res) => {
-        const products = req.body
-        const result = await carCollection.insertOne(products);
-        console.log(result);
-        res.send(result)
-     })
+    	//!======START <- get All Buyers  ======>
+	app.get('/usersroleBuyers', async (req, res) => {
+		result = await usersCollection.find({ role: 'Buyer' }).toArray();
+		res.send(result);
+	});
+	//todo--------------------------------
+
+     app.get('/buyer', async (req, res) => {
+        const query = { userType: "Seller" };
+        const result = await usersCollection.find(query).toArray();
+        res.send(result);
+    });
+
+    app.delete('/buyer/:id', async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: ObjectId(id) };
+        const result = await usersCollection.deleteOne(query)
+        res.send(result);
+    });
+    app.post('/myProducts', async (req, res) => {
+        const ProductInfo = req.body;
+        const result = await sellerProductsCollection.insertOne(ProductInfo);
+        res.send(result);
+    })
+
+
+    app.get('/myProducts', async (req, res) => {
+        const email = req.query.email;
+        const query = { email: email };
+        const results = await sellerProductsCollection.find(query).toArray();
+        res.send(results);
+    });
+
+    app.delete('/myProducts/:id', async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: ObjectId(id) };
+        const result = await sellerProductsCollection.deleteOne(query)
+        res.send(result);
+
+    })
 
 
      
